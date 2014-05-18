@@ -61,10 +61,11 @@ summary(sumsteps.imputed$x)[c("Median", "Mean")]
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+```{r fig.width=6, fig.height=6}
 data.imputed$weekday <- weekdays(data.imputed$date)
 data.imputed$weekday.type <- factor(lapply(data.imputed$weekday, function(day) {if (day == "Saturday" || day == "Sunday") { "weekend" } else { "weekday" }}), c("weekend", "weekday"))
 
-
+library(lattice)
+xyplot(steps~interval|weekday.type, data=data.imputed, type="l")
 ```
 
