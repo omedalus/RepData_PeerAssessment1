@@ -64,4 +64,7 @@ summary(sumsteps.imputed$x)[c("Median", "Mean")]
 ```{r}
 data.imputed$weekday <- weekdays(data.imputed$date)
 data.imputed$weekday.type <- factor(lapply(data.imputed$weekday, function(day) {if (day == "Saturday" || day == "Sunday") { "weekend" } else { "weekday" }}), c("weekend", "weekday"))
+
+
 ```
+
