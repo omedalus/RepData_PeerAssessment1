@@ -6,24 +6,62 @@
 unzip("activity.zip", "activity.csv")
 data <- read.csv("activity.csv")
 data <- transform(data, date = as.Date(date))
-
-sumsteps <- aggregate(data$steps, list(date=data$date), sum)
 ```
 
 
 ## What is mean total number of steps taken per day?
 ```{r fig.width=6, fig.height=6}
+sumsteps <- aggregate(data$steps, list(date=data$date), sum)
 hist(sumsteps$x, col="cyan")
 summary(sumsteps$x)[c("Median", "Mean")]
 ```
 
 
 ## What is the average daily activity pattern?
+```{r fig.width=6, fig.height=6}
+meanstepsbyinterval <- aggregate(data$steps, 
+                                 list(interval=data$interval), 
+                                 mean, na.rm=T)
+plot(meanstepsbyinterval$interval, 
+     meanstepsbyinterval$x, 
+     type="l")
 
+```
+
+Interval with most steps: 
+```{r fig.width=6, fig.height=6}
+meanstepsbyinterval[meanstepsbyinterval$x == max(meanstepsbyinterval$x), "interval"]
+```
 
 
 ## Imputing missing values
+Total number of rows with NAs: 
+```{r} 
+sum(is.na(data$steps))
+```
+
+We will supply the missing values by filling them in from the interval averages.
+```{r}
+data.imputed <- data
+for (i in which(is.na(data.imputed$steps))) {
+  interval <- data.imputed$interval[i]
+  impute <- meanstepsbyinterval[
+      meanstepsbyinterval$interval == interval, "x"]
+  data.imputed$steps[i] <- impute
+}
+```
+
+```{r fig.width=6, fig.height=6}
+sumsteps.imputed <- aggregate(data.imputed$steps, 
+                              list(date=data.imputed$date), sum)
+hist(sumsteps.imputed$x, col="pink")
+summary(sumsteps.imputed$x)[c("Median", "Mean")]
+```
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+data.imputed$weekday <- weekdays(data.imputed$date)
+data.imputed$weekday.type <- factor(lapply(data.imputed$weekday, function(day) {if (day == "Saturday" || day == "Sunday") { "weekend" } else { "weekday" }}), c("weekend", "weekday"))
+```
